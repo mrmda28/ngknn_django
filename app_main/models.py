@@ -16,7 +16,7 @@ class Building(models.Model):
 class User_app(models.Model):
     username = models.CharField('Имя', max_length=50)
     phone = models.CharField('Телефон', max_length=10)
-    password = models.CharField('Пароль', max_length=50)
+    password = models.CharField('Пароль', max_length=128)
     building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
 
     def __str__(self):
