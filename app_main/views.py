@@ -65,27 +65,39 @@ def api_users_app(request):
 
     # If http method is GET, then all users will be returned
     if request.method == 'GET':
-        users = User_app.objects.all()
-        serializer = UserAppSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        token = request.headers.get('Authorization')
+        if Token.objects.filter(token=token).exists():
+            users = User_app.objects.all()
+            serializer = UserAppSerializer(users, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)
 
 
 # --------- Get specialties --------- #
 @api_view(['GET'])
 def api_specialty(request):
     if request.method == 'GET':
-        specialties = Specialty.objects.all()
-        serializer = SpecialtySerializer(specialties, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        token = request.headers.get('Authorization')
+        if Token.objects.filter(token=token).exists():
+            specialties = Specialty.objects.all()
+            serializer = SpecialtySerializer(specialties, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)
 
 
 # --------- Get groups --------- #
 @api_view(['GET'])
 def api_group(request):
     if request.method == 'GET':
-        groups = Group.objects.all()
-        serializer = GroupSerializer(groups, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        token = request.headers.get('Authorization')
+        if Token.objects.filter(token=token).exists():
+            groups = Group.objects.all()
+            serializer = GroupSerializer(groups, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)
 
 
 # --------- Creat or get teachers --------- #
@@ -104,6 +116,10 @@ def api_teacher(request):
 
     # If http method is GET, then all teachers will be returned
     if request.method == 'GET':
-        teachers = Teacher.objects.all()
-        serializer = GroupSerializer(teachers, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        token = request.headers.get('Authorization')
+        if Token.objects.filter(token=token).exists():
+            teachers = Teacher.objects.all()
+            serializer = GroupSerializer(teachers, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)
