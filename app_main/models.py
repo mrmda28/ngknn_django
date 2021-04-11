@@ -35,3 +35,37 @@ class Token(models.Model):
     class Meta:
         verbose_name = 'Токен'
         verbose_name_plural = 'Токены'
+
+
+class Specialty(models.Model):
+    name = models.CharField('Специальность', max_length=50)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Специальность'
+        verbose_name_plural = 'Специальности'
+
+
+class Group(models.Model):
+    name = models.CharField('Группа', max_length=10)
+    specialty = models.ForeignKey('Specialty', verbose_name='Специальность', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+
+
+class Teacher(models.Model):
+    name = models.CharField('Преподаватель', max_length=70)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Преподаватель'
+        verbose_name_plural = 'Преподаватели'
