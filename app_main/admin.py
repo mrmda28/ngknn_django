@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from app_main.models import User_app, Building, Token, Specialty, Group, Teacher
+from app_main.models import User_app, Building, Token, Specialty, Group, Teacher, Type, Classroom, Subject, Lesson
 
 
 @admin.register(User_app)
@@ -32,3 +32,24 @@ class GroupAdmin(admin.ModelAdmin):
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ('name',)
+
+
+@admin.register(Type)
+class TypeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
+@admin.register(Classroom)
+class ClassroomAdmin(admin.ModelAdmin):
+    list_display = ('number', 'name')
+
+
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
+@admin.register(Lesson)
+class LessonAdmin(admin.ModelAdmin):
+    list_display = ('date', 'building', 'time', 'type', 'subject', 'group', 'teacher', 'classroom')
+    list_display_links = ('date',)

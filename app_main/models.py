@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 
 
@@ -69,3 +70,56 @@ class Teacher(models.Model):
     class Meta:
         verbose_name = 'Преподаватель'
         verbose_name_plural = 'Преподаватели'
+
+
+class Type(models.Model):
+    name = models.CharField('Тип', max_length=70)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Тип'
+        verbose_name_plural = 'Типы'
+
+
+class Classroom(models.Model):
+    number = models.IntegerField('Номер')
+    name = models.CharField('Название', max_length=70)
+
+    def __str__(self):
+        return str(self.number)
+
+    class Meta:
+        verbose_name = 'Кабинет'
+        verbose_name_plural = 'Кабинет'
+
+
+class Subject(models.Model):
+    name = models.CharField('Название', max_length=70)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Предмет'
+        verbose_name_plural = 'Предметы'
+
+
+class Lesson(models.Model):
+    date = models.DateField('Дата', default=(datetime.datetime.now() + datetime.timedelta(days=1)))
+    building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
+    time = models.TimeField('Время')
+    duration = models.IntegerField('Продолжительность')
+    type = models.ForeignKey('Type', verbose_name='Тип', on_delete=models.CASCADE)
+    subject = models.ForeignKey('Subject', verbose_name='Предмет', on_delete=models.CASCADE)
+    group = models.ForeignKey('Group', verbose_name='Группа', on_delete=models.CASCADE)
+    teacher = models.ForeignKey('Teacher', verbose_name='Преподаватель', on_delete=models.CASCADE)
+    classroom = models.ForeignKey('Classroom', verbose_name='Кабинет', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(str(self.date) + str(self.time))
+
+    class Meta:
+        verbose_name = 'Занятие'
+        verbose_name_plural = 'Занятия'
