@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from app_main.models import User_app, Building, Token, Specialty, Group, Teacher, Classroom, Subject, Lesson, Change
+from app_main.models import User_app, Building, Token, Specialty, Group, Teacher, Classroom, Subject, Lesson, Section
 
 
 @admin.register(User_app)
@@ -24,6 +24,11 @@ class GroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'specialty')
 
 
+@admin.register(Section)
+class SectionAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
 @admin.register(Specialty)
 class SpecialtyAdmin(admin.ModelAdmin):
     list_display = ('building', 'name')
@@ -40,7 +45,7 @@ class TeacherAdmin(admin.ModelAdmin):
     list_display = ('name', 'display_subjects')
 
     def display_subjects(self, obj):
-        return ', '.join([Subject.name for Subject in obj.subject.all()])
+        return [Subject.name for Subject in obj.subject.all()]
 
     display_subjects.short_description = 'Предметы'
 
@@ -52,11 +57,6 @@ class SubjectAdmin(admin.ModelAdmin):
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ('week_day', 'start_time', 'duration', 'subject', 'group', 'teacher', 'classroom', 'is_top')
+    list_display = ('week_day', 'start_time', 'duration', 'group', 'is_top', 'subject', 'teacher', 'classroom')
     list_display_links = ('start_time',)
-
-
-@admin.register(Change)
-class ChangeAdmin(admin.ModelAdmin):
-    list_display = ('date', 'lesson', 'teacher', 'subject', 'classroom', 'is_exists')
-    list_display_links = ('date',)
+    ordering = ('week_day', 'start_time', 'group')

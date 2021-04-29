@@ -1,4 +1,3 @@
-import datetime
 from django.db import models
 
 
@@ -38,12 +37,23 @@ class Token(models.Model):
         verbose_name_plural = 'Токены'
 
 
+class Section(models.Model):
+    name = models.CharField('Секция', max_length=50)
+    image = models.CharField('Путь к картинке', max_length=255)
+    url = models.URLField('URL')
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Секция'
+        verbose_name_plural = 'Секции'
+
+
 class Specialty(models.Model):
     name = models.CharField('Специальность', max_length=50)
     building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
-    # static files
-    # background
-    # icon
+    image = models.CharField(verbose_name='Путь к картинке', max_length=255, null=True, blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -104,12 +114,11 @@ class Lesson(models.Model):
     week_day = models.IntegerField('День недели')
     start_time = models.TimeField('Начало занятия')
     duration = models.IntegerField('Продолжительность')
-    subject = models.ForeignKey('Subject', verbose_name='Предмет', on_delete=models.CASCADE)
     group = models.ForeignKey('Group', verbose_name='Группа', on_delete=models.CASCADE)
+    is_top = models.BooleanField('Верхняя неделя', null=True, blank=True)
+    subject = models.ForeignKey('Subject', verbose_name='Предмет', on_delete=models.CASCADE)
     teacher = models.ForeignKey('Teacher', verbose_name='Преподаватель', on_delete=models.CASCADE)
     classroom = models.ForeignKey('Classroom', verbose_name='Кабинет', on_delete=models.CASCADE)
-    is_top = models.BooleanField('Верхняя неделя', null=True, blank=True)
-    # parallel - group, week_day, time
 
     def __str__(self):
         return str(str(self.pk))
@@ -117,19 +126,3 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = 'Занятие'
         verbose_name_plural = 'Занятия'
-
-
-class Change(models.Model):
-    date = models.DateField('Дата', default=(datetime.datetime.now() + datetime.timedelta(days=1)))
-    lesson = models.ForeignKey('Lesson', verbose_name='Занятие', on_delete=models.CASCADE)
-    teacher = models.ForeignKey('Teacher', verbose_name='Преподаватель', on_delete=models.CASCADE)
-    subject = models.ForeignKey('Subject', verbose_name='Предмет', on_delete=models.CASCADE)
-    classroom = models.ForeignKey('Classroom', verbose_name='Кабинет', on_delete=models.CASCADE)
-    is_exists = models.BooleanField('Существует', default=True)
-
-    def __str__(self):
-        return str(str(self.pk))
-
-    class Meta:
-        verbose_name = 'Изменения'
-        verbose_name_plural = 'Изменения'
