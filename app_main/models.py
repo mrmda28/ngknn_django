@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 
@@ -39,7 +41,7 @@ class Token(models.Model):
 
 class Section(models.Model):
     name = models.CharField('Секция', max_length=50)
-    image = models.CharField('Путь к картинке', max_length=255)
+    image = models.CharField('Путь к картинке', max_length=255, null=True, blank=True)
     url = models.URLField('URL')
 
     def __str__(self):
@@ -53,7 +55,7 @@ class Section(models.Model):
 class Specialty(models.Model):
     name = models.CharField('Специальность', max_length=50)
     building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
-    image = models.CharField(verbose_name='Путь к картинке', max_length=255, null=True, blank=True)
+    image = models.CharField('Путь к картинке', max_length=255, null=True, blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -78,6 +80,7 @@ class Group(models.Model):
 class Classroom(models.Model):
     number = models.CharField('Номер', max_length=30)
     name = models.CharField('Название', max_length=70)
+    # building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.number)
@@ -85,6 +88,17 @@ class Classroom(models.Model):
     class Meta:
         verbose_name = 'Кабинет'
         verbose_name_plural = 'Кабинет'
+
+
+class Subject(models.Model):
+    name = models.CharField('Название', max_length=70)
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Предмет'
+        verbose_name_plural = 'Предметы'
 
 
 class Teacher(models.Model):
@@ -97,17 +111,6 @@ class Teacher(models.Model):
     class Meta:
         verbose_name = 'Преподаватель'
         verbose_name_plural = 'Преподаватели'
-
-
-class Subject(models.Model):
-    name = models.CharField('Название', max_length=70)
-
-    def __str__(self):
-        return str(self.name)
-
-    class Meta:
-        verbose_name = 'Предмет'
-        verbose_name_plural = 'Предметы'
 
 
 class Lesson(models.Model):
@@ -126,3 +129,35 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = 'Занятие'
         verbose_name_plural = 'Занятия'
+
+
+class Change(models.Model):
+    date = models.DateField('Дата', default=(datetime.datetime.now() + datetime.timedelta(days=1)))
+    lesson = models.ForeignKey('Lesson', verbose_name='Занятие', on_delete=models.CASCADE)
+    subject = models.ForeignKey('Subject', verbose_name='Предмет', on_delete=models.CASCADE, null=True, blank=True)
+    teacher = models.ForeignKey('Teacher', verbose_name='Преподаватель', on_delete=models.CASCADE, null=True, blank=True)
+    classroom = models.ForeignKey('Classroom', verbose_name='Кабинет', on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return str(str(self.pk))
+
+    class Meta:
+        verbose_name = 'Изменение'
+        verbose_name_plural = 'Изменения'
+
+
+class Receipt(models.Model):
+    group = models.CharField('Группа', max_length=100)
+    student = models.CharField('Студент', max_length=100)
+    birthday = models.DateField('Дата рождения')
+    quantity = models.IntegerField('Количество')
+    where = models.CharField('Куда', max_length=150)
+    military_commissariat = models.CharField('Военкомат', max_length=150, default=None, null=True, blank=True)
+    is_active = models.BooleanField('Активные', default=True)
+
+    def __str__(self):
+        return str(self.group) + ', ' + str(self.student) + ', ' + str(self.quantity)
+
+    class Meta:
+        verbose_name = 'Справка'
+        verbose_name_plural = 'Справки'

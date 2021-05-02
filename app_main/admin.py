@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from app_main.models import User_app, Building, Token, Specialty, Group, Teacher, Classroom, Subject, Lesson, Section
+from app_main.models import User_app, Building, Token, Specialty, Group, Teacher, Classroom, Subject, Lesson, Section, \
+    Change, Section, Receipt
 
 
 @admin.register(User_app)
@@ -22,6 +23,7 @@ class TokenAdmin(admin.ModelAdmin):
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'specialty')
+    ordering = ('specialty', 'name')
 
 
 @admin.register(Section)
@@ -38,6 +40,8 @@ class SpecialtyAdmin(admin.ModelAdmin):
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
     list_display = ('number', 'name')
+    list_display_links = ('number',)
+    ordering = ('number',)
 
 
 @admin.register(Teacher)
@@ -60,3 +64,17 @@ class LessonAdmin(admin.ModelAdmin):
     list_display = ('week_day', 'start_time', 'duration', 'group', 'is_top', 'subject', 'teacher', 'classroom')
     list_display_links = ('start_time',)
     ordering = ('week_day', 'start_time', 'group')
+
+
+@admin.register(Change)
+class ChangeAdmin(admin.ModelAdmin):
+    list_display = ('date', 'lesson', 'subject', 'teacher', 'classroom')
+    list_display_links = ('date',)
+    ordering = ('date',)
+
+
+@admin.register(Receipt)
+class ReceiptAdmin(admin.ModelAdmin):
+    list_display = ('group', 'student', 'quantity', 'where', 'is_active')
+    list_display_links = ('student',)
+    ordering = ('is_active', 'group')

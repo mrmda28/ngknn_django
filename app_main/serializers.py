@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from app_main.models import User_app, Specialty, Group, Teacher, Classroom, Subject, Lesson
+from app_main.models import User_app, Specialty, Group, Teacher, Classroom, Subject, Lesson, Change, Section, Receipt
 
 
 class UserAppSerializer(serializers.ModelSerializer):
@@ -12,7 +12,7 @@ class UserAppSerializer(serializers.ModelSerializer):
 class SpecialtySerializer(serializers.ModelSerializer):
     class Meta:
         model = Specialty
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'image')
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -48,3 +48,25 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ('id', 'week_day', 'start_time', 'duration', 'group', 'is_top', 'subject', 'teacher', 'classroom')
+
+
+class ChangeSerializer(serializers.ModelSerializer):
+    subject = serializers.StringRelatedField()
+    teacher = serializers.StringRelatedField()
+    classroom = serializers.StringRelatedField()
+
+    class Meta:
+        model = Change
+        fields = ('id', 'date', 'lesson', 'subject', 'teacher', 'classroom')
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = ('id', 'name', 'image', 'url')
+
+
+class ReceiptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Receipt
+        fields = ('id', 'group', 'student', 'birthday', 'quantity', 'where', 'military_commissariat', 'is_active')
