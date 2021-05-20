@@ -20,6 +20,7 @@ class User_app(models.Model):
     phone = models.CharField('Телефон', max_length=10)
     password = models.CharField('Пароль', max_length=128)
     building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
+    is_admin = models.BooleanField('Администратор', default=False)
 
     def __str__(self):
         return str(self.username)
@@ -116,7 +117,7 @@ class Teacher(models.Model):
 class Lesson(models.Model):
     week_day = models.IntegerField('День недели')
     start_time = models.TimeField('Начало занятия')
-    duration = models.IntegerField('Продолжительность')
+    duration = models.IntegerField('Продолжительность', default=90)
     group = models.ForeignKey('Group', verbose_name='Группа', on_delete=models.CASCADE)
     is_top = models.BooleanField('Верхняя неделя', null=True, blank=True)
     subject = models.ForeignKey('Subject', verbose_name='Предмет', on_delete=models.CASCADE)
@@ -133,10 +134,12 @@ class Lesson(models.Model):
 
 class Change(models.Model):
     date = models.DateField('Дата', default=(datetime.datetime.now() + datetime.timedelta(days=1)))
-    lesson = models.ForeignKey('Lesson', verbose_name='Занятие', on_delete=models.CASCADE)
+    lesson = models.ForeignKey('Lesson', verbose_name='Занятие', on_delete=models.CASCADE, null=True, blank=True)
     subject = models.ForeignKey('Subject', verbose_name='Предмет', on_delete=models.CASCADE, null=True, blank=True)
     teacher = models.ForeignKey('Teacher', verbose_name='Преподаватель', on_delete=models.CASCADE, null=True, blank=True)
     classroom = models.ForeignKey('Classroom', verbose_name='Кабинет', on_delete=models.CASCADE, null=True, blank=True)
+    start_time = models.TimeField('Начало занятия')
+    duration = models.IntegerField('Продолжительность', default=90)
 
     def __str__(self):
         return str(str(self.pk))

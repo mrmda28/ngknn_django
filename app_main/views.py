@@ -15,6 +15,24 @@ from app_main.serializers import UserAppSerializer, SpecialtySerializer, GroupSe
     ClassroomSerializer, SubjectSerializer, LessonSerializer, ChangeSerializer, SectionSerializer, ReceiptSerializer
 
 
+# def token_verification(request, role):
+#     token = request.headers.get('Authorization')
+#
+#     token_user = Token.objects.get(token=token)
+#     user = User_app.objects.get(pk=token_user.user)
+#
+#     if role == 'admin':
+#         return user.is_admin == True
+#     elif role == 1:
+#         return user.building == role
+#     elif role == 2:
+#         return user.building == role
+#     elif role == 3:
+#         return user.building == role
+#     else:
+#         return False
+
+
 def token_verification(request):
     token = request.headers.get('Authorization')
 
@@ -53,24 +71,26 @@ def api_auth(request):
 @api_view(['POST', 'GET'])
 def api_users_app(request, pk=None):
     if request.method == 'POST':
-        if not User_app.objects.filter(phone=request.data['phone']).exists():
-            password = get_hash_password(request.data['password'])
+        if token_verification(request):
+            if not User_app.objects.filter(phone=request.data['phone']).exists():
+                password = get_hash_password(request.data['password'])
 
-            user_app = User_app.objects.create(username=request.data['username'],
-                                               phone=request.data['phone'],
-                                               password=password,
-                                               building=Building.objects.get(id=request.data['building']))
-            user_app.save()
+                user_app = User_app.objects.create(username=request.data['username'],
+                                                   phone=request.data['phone'],
+                                                   password=password,
+                                                   building=Building.objects.get(number=request.data['building']))
+                user_app.save()
 
-            user = User_app.objects.get(username=request.data['username'])
-            token = str(secrets.token_urlsafe())
-            t = Token.objects.create(token=token, user=user)
-            t.save()
-            json_token = {'token': token}
+                user = User_app.objects.get(username=request.data['username'])
+                token = str(secrets.token_urlsafe())
+                t = Token.objects.create(token=token, user=user)
+                t.save()
 
-            return Response(json_token, status=status.HTTP_201_CREATED)
+                return Response('SUCCESS', status=status.HTTP_201_CREATED)
+            else:
+                return Response('ERROR: User already exists', status=status.HTTP_409_CONFLICT)
         else:
-            return Response('ERROR: User already exists', status=status.HTTP_409_CONFLICT)
+            return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)
 
     if request.method == 'GET':
         if token_verification(request):
@@ -184,9 +204,34 @@ def api_lesson(request, pk_group=None, pk_week_day=None):
             return Response('ERROR: Incorrect request', status=status.HTTP_400_BAD_REQUEST)
 
 
+# --------- Get lessons for teacher --------- #
+@api_view(['GET'])
+def api_lesson_t(request, pk_teacher=None, pk_week_day=None):
+    if request.method == 'GET':
+        if (pk_teacher and pk_week_day) is not None:
+            lesson_by_group_week_day = Lesson.objects.filter(teacher=pk_teacher, week_day=pk_week_day)
+            serializer = LessonSerializer(lesson_by_group_week_day, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        elif pk_teacher is not None:
+            lesson_by_group = Lesson.objects.filter(teacher=pk_teacher)
+            serializer = LessonSerializer(lesson_by_group, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        elif (pk_teacher and pk_week_day) is None:
+            lessons = Lesson.objects.all()
+            serializer = LessonSerializer(lessons, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Incorrect request', status=status.HTTP_400_BAD_REQUEST)
+
+
 # --------- Creat or get changes --------- #
 @api_view(['POST', 'GET'])
-def api_change(request, pk_group=None, pk_week_day=None):
+def api_change(request, pk_group=None, date=None):
     if request.method == 'POST':
         if token_verification(request):
             if not Change.objects.filter(date=request.data['date'],
@@ -206,21 +251,39 @@ def api_change(request, pk_group=None, pk_week_day=None):
             return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)
 
     if request.method == 'GET':
-        if (pk_group and pk_week_day) is not None:
-            pass
-            # change_by_group_week_day = Change.objects.filter(group=pk_group, week_day=pk_week_day)
-            # serializer = ChangeSerializer(change_by_group_week_day, many=True)
-            #
-            # return Response(serializer.data, status=status.HTTP_200_OK)
+        if date is not None:
+            change_by_date = Change.objects.filter(date=date)
+            serializer = ChangeSerializer(change_by_date, many=True)
 
-        elif pk_group is not None:
-            pass
-            # change_by_group = Change.objects.filter(group=pk_group)
-            # serializer = ChangeSerializer(change_by_group, many=True)
-            #
-            # return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        elif (pk_group and pk_week_day) is None:
+        elif (pk_group and date) is None:
+            changes = Change.objects.all()
+            serializer = ChangeSerializer(changes, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Incorrect request', status=status.HTTP_400_BAD_REQUEST)
+
+
+# --------- Get changes for teacher --------- #
+@api_view(['GET'])
+def api_change_t(request, pk_teacher=None, date=None):
+    if request.method == 'GET':
+        if (pk_teacher and date) is not None:
+            change_by_teacher_date = Change.objects.filter(teacher=Teacher.objects.get(id=pk_teacher),
+                                                           date=date)
+            serializer = ChangeSerializer(change_by_teacher_date, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        elif pk_teacher is not None:
+            change_by_teacher = Change.objects.filter(teacher=Teacher.objects.get(id=pk_teacher))
+            serializer = ChangeSerializer(change_by_teacher, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        elif (pk_group and date) is None:
             changes = Change.objects.all()
             serializer = ChangeSerializer(changes, many=True)
 
@@ -397,6 +460,51 @@ def api_lesson_with_change(request, pk_group=None, date=None):
             return Response('ERROR: Incorrect request', status=status.HTTP_400_BAD_REQUEST)
 
 
+# --------- Get lesson with change for teacher --------- #
+@api_view(['GET'])
+def api_lesson_with_change_t(request, pk_teacher=None, date=None):
+    if request.method == 'GET':
+        if (pk_teacher and date) is not None:
+            week_day = datetime.datetime.strptime(date, '%Y-%m-%d').weekday()
+
+            lesson_by_teacher_week_day = Lesson.objects.filter(teacher=pk_teacher, week_day=week_day + 1)
+            lesson_serializer = LessonSerializer(lesson_by_teacher_week_day, many=True)
+
+            change_by_teacher_week_day = Change.objects.filter(teacher=pk_teacher, date=date)
+            change_serializer = ChangeSerializer(change_by_teacher_week_day, many=True)
+
+            response = {'lessons': lesson_serializer.data,
+                        'changes': change_serializer.data}
+
+            return Response(response, status=status.HTTP_200_OK)
+
+        elif pk_teacher is not None:
+            lesson_by_teacher = Lesson.objects.filter(teacher=pk_teacher)
+            lesson_serializer = LessonSerializer(lesson_by_teacher, many=True)
+
+            change_by_teacher = Change.objects.filter(teacher=pk_teacher)
+            change_serializer = ChangeSerializer(change_by_teacher, many=True)
+
+            response = {'lessons': lesson_serializer.data,
+                        'changes': change_serializer.data}
+
+            return Response(response, status=status.HTTP_200_OK)
+
+        elif (pk_teacher and date) is None:
+            lesson_by_teacher_week_day = Lesson.objects.all()
+            lesson_serializer = LessonSerializer(lesson_by_teacher_week_day, many=True)
+
+            change_by_teacher_week_day = Change.objects.all()
+            change_serializer = ChangeSerializer(change_by_teacher_week_day, many=True)
+
+            response = {'lessons': lesson_serializer.data,
+                        'changes': change_serializer.data}
+
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Incorrect request', status=status.HTTP_400_BAD_REQUEST)
+
+
 # --------- Creat or get section --------- #
 @api_view(['POST', 'GET'])
 def api_section(request, pk=None):
@@ -436,29 +544,23 @@ def api_section(request, pk=None):
 @api_view(['POST', 'GET'])
 def api_receipt(request, pk=None):
     if request.method == 'POST':
-        if token_verification(request):
-            if not Receipt.objects.filter(group=request.data['group'],
-                                          student=request.data['student'],
-                                          birthday=request.data['birthday'],
-                                          quantity=request.data['quantity'],
-                                          where=request.data['where'],
-                                          military_commissariat=request.data['military_commissariat'],
-                                          is_active=request.data['is_active']).exists():
+        if not Receipt.objects.filter(group=request.data['group'],
+                                      student=request.data['student'],
+                                      birthday=request.data['birthday'],
+                                      quantity=request.data['quantity'],
+                                      where=request.data['where'],
+                                      military_commissariat=request.data['military_commissariat']).exists():
+            receipt = Receipt.objects.create(group=request.data['group'],
+                                             student=request.data['student'],
+                                             birthday=request.data['birthday'],
+                                             quantity=request.data['quantity'],
+                                             where=request.data['where'],
+                                             military_commissariat=request.data['military_commissariat'])
+            receipt.save()
 
-                receipt = Receipt.objects.create(group=request.data['group'],
-                                                 student=request.data['student'],
-                                                 birthday=request.data['birthday'],
-                                                 quantity=request.data['quantity'],
-                                                 where=request.data['where'],
-                                                 military_commissariat=request.data['military_commissariat'],
-                                                 is_active=request.data['is_active'])
-                receipt.save()
-
-                return Response('SUCCESS', status=status.HTTP_201_CREATED)
-            else:
-                return Response('ERROR: Receipt already exists', status=status.HTTP_409_CONFLICT)
+            return Response('SUCCESS', status=status.HTTP_201_CREATED)
         else:
-            return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)
+            return Response('ERROR: Receipt already exists', status=status.HTTP_409_CONFLICT)
 
     if request.method == 'GET':
         if pk is not None:
@@ -476,3 +578,15 @@ def api_receipt(request, pk=None):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response('ERROR: Incorrect request', status=status.HTTP_400_BAD_REQUEST)
+
+
+# --------- Hashing password --------- #
+@api_view(['POST'])
+def api_hash_password(request):
+    if request.method == 'POST':
+        if token_verification(request):
+            hash_password = str(get_hash_password(request.data['password']))
+
+            return Response(hash_password, status=status.HTTP_200_OK)
+        else:
+            return Response('ERROR: Access is denied', status=status.HTTP_401_UNAUTHORIZED)

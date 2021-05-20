@@ -6,7 +6,7 @@ from app_main.models import User_app, Specialty, Group, Teacher, Classroom, Subj
 class UserAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = User_app
-        fields = ('id', 'username', 'phone', 'building_id')
+        fields = ('id', 'username', 'phone', 'building', 'is_admin')
 
 
 class SpecialtySerializer(serializers.ModelSerializer):
@@ -57,7 +57,7 @@ class ChangeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Change
-        fields = ('id', 'date', 'lesson', 'subject', 'teacher', 'classroom')
+        fields = ('id', 'date', 'lesson', 'start_time', 'duration', 'subject', 'teacher', 'classroom')
 
 
 class SectionSerializer(serializers.ModelSerializer):

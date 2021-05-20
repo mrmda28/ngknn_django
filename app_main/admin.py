@@ -6,7 +6,8 @@ from app_main.models import User_app, Building, Token, Specialty, Group, Teacher
 
 @admin.register(User_app)
 class UserAppAdmin(admin.ModelAdmin):
-    list_display = ('username', 'phone', 'building')
+    list_display = ('username', 'phone', 'building', 'is_admin')
+    ordering = ('building',)
 
 
 @admin.register(Building)
@@ -68,7 +69,7 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(Change)
 class ChangeAdmin(admin.ModelAdmin):
-    list_display = ('date', 'lesson', 'subject', 'teacher', 'classroom')
+    list_display = ('date', 'lesson', 'start_time', 'duration', 'subject', 'teacher', 'classroom')
     list_display_links = ('date',)
     ordering = ('date',)
 
