@@ -283,7 +283,7 @@ def api_change_t(request, pk_teacher=None, date=None):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        elif (pk_group and date) is None:
+        elif (pk_teacher and date) is None:
             changes = Change.objects.all()
             serializer = ChangeSerializer(changes, many=True)
 
@@ -346,9 +346,14 @@ def api_teacher(request, pk=None):
         if pk is not None:
             if Teacher.objects.filter(pk=pk).exists():
                 teacher = Teacher.objects.filter(pk=pk)
-                serializer = TeacherSerializer(teacher, many=True)
+                teacher_serializer = TeacherSerializer(teacher, many=True)
 
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                subjects = [subject.name for subject in Teacher.objects.get(pk=pk).subject.all()]
+
+                response = {'teacher': teacher_serializer.data,
+                            'subjects': subjects}
+
+                return Response(response, status=status.HTTP_200_OK)
             else:
                 return Response('ERROR: Teacher not found', status=status.HTTP_404_NOT_FOUND)
         elif pk is None:

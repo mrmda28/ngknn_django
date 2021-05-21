@@ -12,7 +12,8 @@ class UserAppSerializer(serializers.ModelSerializer):
 class SpecialtySerializer(serializers.ModelSerializer):
     class Meta:
         model = Specialty
-        fields = ('id', 'name', 'image')
+        fields = ('id', 'name')
+        read_only_fields = ('image',)
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -24,7 +25,8 @@ class GroupSerializer(serializers.ModelSerializer):
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teacher
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'email')
+        read_only_fields = ('email',)
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
@@ -64,6 +66,7 @@ class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = ('id', 'name', 'image', 'url')
+        read_only_fields = ('image',)
 
 
 class ReceiptSerializer(serializers.ModelSerializer):

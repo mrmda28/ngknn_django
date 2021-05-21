@@ -42,7 +42,7 @@ class Token(models.Model):
 
 class Section(models.Model):
     name = models.CharField('Секция', max_length=50)
-    image = models.CharField('Путь к картинке', max_length=255, null=True, blank=True)
+    image = models.ImageField('Изображение', upload_to='sections/', default='default.jpg', null=True, blank=True)
     url = models.URLField('URL')
 
     def __str__(self):
@@ -56,7 +56,7 @@ class Section(models.Model):
 class Specialty(models.Model):
     name = models.CharField('Специальность', max_length=50)
     building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
-    image = models.CharField('Путь к картинке', max_length=255, null=True, blank=True)
+    image = models.ImageField('Изображение', upload_to='specialties/', default='default.jpg', null=True, blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -81,7 +81,6 @@ class Group(models.Model):
 class Classroom(models.Model):
     number = models.CharField('Номер', max_length=30)
     name = models.CharField('Название', max_length=70)
-    # building = models.ForeignKey('Building', verbose_name='Корпус', on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.number)
@@ -104,6 +103,7 @@ class Subject(models.Model):
 
 class Teacher(models.Model):
     name = models.CharField('Преподаватель', max_length=70)
+    email = models.EmailField('Email', default=None, null=True, blank=True)
     subject = models.ManyToManyField('Subject', verbose_name='Предметы', null=True, blank=True)
 
     def __str__(self):

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from app_main.models import User_app, Building, Token, Specialty, Group, Teacher, Classroom, Subject, Lesson, Section, \
     Change, Section, Receipt
@@ -29,13 +30,25 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'display_image')
+    readonly_fields = ('display_image',)
+
+    def display_image(self, obj):
+        return mark_safe(f'<img src="{obj.image.url}" width="50"/>')
+
+    display_image.short_description = 'Изображение'
 
 
 @admin.register(Specialty)
 class SpecialtyAdmin(admin.ModelAdmin):
-    list_display = ('building', 'name')
+    list_display = ('building', 'name', 'display_image')
     list_display_links = ('name',)
+    readonly_fields = ('display_image',)
+
+    def display_image(self, obj):
+        return mark_safe(f'<img src="{obj.image.url}" width="50"/>')
+
+    display_image.short_description = 'Изображение'
 
 
 @admin.register(Classroom)
@@ -47,10 +60,10 @@ class ClassroomAdmin(admin.ModelAdmin):
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ('name', 'display_subjects')
+    list_display = ('name', 'email', 'display_subjects')
 
     def display_subjects(self, obj):
-        return [Subject.name for Subject in obj.subject.all()]
+        return [subject.name for subject in obj.subject.all()]
 
     display_subjects.short_description = 'Предметы'
 

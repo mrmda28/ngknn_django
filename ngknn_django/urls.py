@@ -1,3 +1,4 @@
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
@@ -5,7 +6,7 @@ from django.urls import path
 from app_main.views import api_auth, api_users_app, api_specialty, api_group, api_teacher, api_classroom, \
     api_subject, api_lesson, api_lesson_t, api_change, api_change_t, api_lesson_with_change, api_lesson_with_change_t, \
     api_section, api_receipt, api_hash_password
-
+from ngknn_django import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -62,3 +63,4 @@ urlpatterns = [
 ]
 
 urlpatterns += staticfiles_urlpatterns()
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
